@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<style type="text/css">
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+		body {
+			color: #fff;
+			background: #151515;
+			overflow: hidden;
+			text-align: center;
+			user-select: none;
+			-moz-user-select: none;
+			-webkit-user-select: none;
+		}
+		canvas {
+			pointer-events: none;
+		}
+		img {
+			display: none;
+		}
+	</style>
+</head>
+<body>
+
+<canvas id="stage"></canvas>
+
+<!-- my fancy preloader, do you like? -->
+<img id="beetle" src="../img/beetle.png">
+
+<script type="text/javascript" src="../lib/require.js"></script>
+<script type="text/javascript">
+
+require.config({
+	baseUrl: '../src'
+});
+
+// i put these in lib so that you can use your own versions. everyone's is different...
+require(['../examples/TestBasic', '../lib/Vec2.js', '../lib/Rectangle.js', '../lib/Matrix2.js', '../lib/RequestAnimationFrame.js'], function(TestBasic) {
+		
+		var canvas = document.getElementsByTagName('canvas')[0];
+		
+		// window.addEventListener('load', function(evt) {
+			var test = new TestBasic(canvas);
+		// }, false);
+		
+		// console.log('Running example');
+	}
+);
+	
+</script>
+</body>
+</html>
