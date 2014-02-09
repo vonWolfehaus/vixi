@@ -14,7 +14,7 @@ gulp.task('build', function() {
 	rjs({
 		baseUrl: 'src',
 		out: 'von-canvas2d.js',
-		include: ['../lib/LinkedList.js', 'Container', 'Sprite'],
+		include: ['Container', 'Sprite'],
 		wrap: true,
 		keepAmdefine: false
 	})
@@ -23,8 +23,8 @@ gulp.task('build', function() {
 });
 
 gulp.task('all', ['build-geom', 'build'], function() {
-	gulp.src(['dist/lib-geom.js', 'dist/von-canvas2d.js'])
-		.pipe(concat('von-canvas2d-full.js'))
+	gulp.src(['dist/lib-geom.js', '../lib/LinkedList.js', 'dist/von-canvas2d.js'])
+		.pipe(concat('von-canvas2d-all.js'))
 		.pipe(gulp.dest('dist/'));
 });
 
