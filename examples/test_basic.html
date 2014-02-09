@@ -40,15 +40,11 @@ require.config({
 });
 
 // i put these in lib so that you can use your own versions. everyone's is different...
-require(['../examples/TestBasic', '../lib/Vec2.js', '../lib/Rectangle.js', '../lib/Matrix2.js', '../lib/RequestAnimationFrame.js'], function(TestBasic) {
+require(['../examples/TestBasic', '../src/geom/Vec2.js', '../src/geom/Rectangle.js', '../src/geom/Point.js', '../src/geom/Matrix2.js', '../lib/LinkedList.js', '../lib/RequestAnimationFrame.js'], function(TestBasic) {
 		
 		var canvas = document.getElementsByTagName('canvas')[0];
 		
-		// window.addEventListener('load', function(evt) {
-			var test = new TestBasic(canvas);
-		// }, false);
-		
-		// console.log('Running example');
+		var test = new TestBasic(canvas);
 	}
 );
 	
