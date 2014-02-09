@@ -1,0 +1,19 @@
+{
+  "name": "von-canvas2d",
+  "author": {
+    "name": "Corey Birnbaum",
+    "email": "vonWolfehaus@gmail.com",
+    "url": "https://github.com/vonWolfehaus/von-canvas2d"
+  },
+  "version": "0.0.1",
+  "description": "Small, fast image drawing library for the HTML canvas element.",
+  "dependencies": {},
+  "devDependencies": {
+    "gulp": "~3.5.0",
+    "gulp-requirejs": "~0.1.3",
+    "gulp-uglify": "~0.2.0",
+    "gulp-util": "~2.2.14",
+    "gulp-concat": "~2.1.7"
+  },
+  "repository": {}
+}
