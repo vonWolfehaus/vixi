@@ -1,214 +1,227 @@
-define(function (require) {
-
-// ripped from easeljs
-var Sprite = function(imageObj) {
-	this.uniqueId = Math.random().toString(36).slice(2) + Date.now();
-	this.image = imageObj;
-	this.visible = true;
-	this.position = new Vec2();
-	this.angle = 0; // radians
-	this.alpha = 1;
-	this.parent = null;
+/*
+	Mat made a fine Sprite... except for all the local variable created in functions, that shit will thrash the garbage reeaaaally hard. Anyway, I stripped out masking, filters, and other things to make it lighter and faster. I recommend just going with the PIXI rendering engine and not this version unless you have your own loader and compatibility isn't an issue. Also removed WebGL support, because it doesn't exist where I go.
 	
-	// these are matrix transform attributes, so they should be simple values, not entire Vectors
-	this.scaleX = 1;
-	this.scaleY = 1;
-	this.skewX = 0;
-	this.skewY = 0;
-	this.regX = 0;
-	this.regY = 0;
+	@author Mat Groves http://matgroves.com/ @Doormat23
+*/
+define(function(require) {
+
+	// imports
+	var VonPixi = require('VonPixi');
+	var DisplayObject = require('DisplayObject');
+	var Point = require('Point');
+	var Rectangle = require('Rectangle');
 	
-	// https://developer.apple.com/library/safari/documentation/AudioVideo/Conceptual/HTML-canvas-guide/Compositing/Compositing.html
-	this.compositeOperation = null;
-	this.sourceRect = null;
-	
-	// private
-	this._matrix = new Matrix2();
-	this._scratchPoint = new Point();
-};
+	/**
+	 * The Sprite object is the base for all textured objects that are rendered to the screen
+	 *
+	 * @class Sprite
+	 * @extends DisplayObject
+	 * @constructor
+	 * @param texture {Image} The image or canvas for this sprite
+	 * @param frame {Rectangle} A rectangle defining the portion of the sprite to be drawn on screen
+	 */
+	var Sprite = function(image, frame) {
+		// copy over the properties from DisplayObject
+		DisplayObject.call(this);
 
-Sprite.prototype = {
+		/**
+		 * The anchor sets the origin point of the texture.
+		 * 0,0 means the texture's origin is the top left
+		 * Setting than anchor to 0.5,0.5 means the textures origin is centered
+		 * Setting the anchor to 1,1 would mean the textures origin points will be the bottom right corner
+		 *
+		 * @property anchor
+		 * @type Point
+		 */
+		this.anchor = new Point(0.5, 0.5);
 
-	// this isn't used internally, but probably should be?
-	isVisible: function() {
-		return this.visible && this.alpha > 0 && this.scaleX && this.scaleY;
-	},
+		/**
+		 * The texture that the sprite is using
+		 *
+		 * @property texture
+		 * @type Texture
+		 */
+		this.texture = image;
+		
+		/**
+		 * The width of the sprite
+		 *
+		 * @property _width
+		 * @type Number
+		 * @private
+		 */
+		this._width = frame ? frame.width : image.width;
 
-	draw: function(ctx, camOffsetX, camOffsetY) {
-		var mtx, rect = this.sourceRect, o = this;
+		/**
+		 * The height of the sprite
+		 *
+		 * @property _height
+		 * @type Number
+		 * @private
+		 */
+		this._height = frame ? frame.height : image.height;
 		
-		mtx = o._matrix.identity();
-		mtx.appendTransform(o.position.x, o.position.y, o.scaleX, o.scaleY, o.angle, o.skewX, o.skewY, o.regX, o.regY);
+		this.frame = frame || new Rectangle(0, 0, image.width, image.height);
 		
-		// ctx.setTransform(mtx.a,  mtx.b, mtx.c, mtx.d, mtx.tx, mtx.ty);
-		ctx.transform(mtx.a,  mtx.b, mtx.c, mtx.d, mtx.tx, mtx.ty);
+		this.scale.x = this._width / this.frame.width;
+		this.scale.y = this._height / this.frame.height;
+
+		/**
+		 * The blend mode to be applied to the sprite
+		 *
+		 * @property blendMode
+		 * @type Number
+		 * @default blendModes.NORMAL;
+		 */
+		this.blendMode = VonPixi.blendModes.NORMAL;
 		
-		ctx.globalAlpha *= o.alpha;
-		if (o.compositeOperation) {
-			ctx.globalCompositeOperation = o.compositeOperation;
+		this.renderable = true;
+	};
+
+	// inherit from DisplayObject, but overwrite the constructor with ours
+	Sprite.prototype = Object.create(DisplayObject.prototype);
+	Sprite.prototype.constructor = Sprite;
+
+	/**
+	 * The width of the sprite, setting this will actually modify the scale to achieve the value set
+	 *
+	 * @property width
+	 * @type Number
+	 */
+	Object.defineProperty(Sprite.prototype, 'width', {
+		get: function() {
+			return this.scale.x * this.frame.width;
+		},
+		set: function(value) {
+			this.scale.x = value / this.frame.width;
+			this._width = value;
 		}
-		
-		if (rect) {
-			ctx.drawImage(this.image, rect.x, rect.y, rect.width, rect.height, 0, 0, rect.width, rect.height);
-		} else {
-			ctx.drawImage(this.image, 0, 0);
+	});
+
+	/**
+	 * The height of the sprite, setting this will actually modify the scale to achieve the value set
+	 *
+	 * @property height
+	 * @type Number
+	 */
+	Object.defineProperty(Sprite.prototype, 'height', {
+		get: function() {
+			return  this.scale.y * this.frame.height;
+		},
+		set: function(value) {
+			this.scale.y = value / this.frame.height;
+			this._height = value;
 		}
-	},
-
-	getStage: function() {
-		var o = this;
-		while (o.parent) {
-			o = o.parent;
-		}
-		return o;
-	},
+	});
 
 	/**
-	 * Transforms the specified x and y position from the coordinate space of the display object
-	 * to the global (stage) coordinate space. For example, this could be used to position an HTML label
-	 * over a specific point on a nested display object. Returns a Point instance with x and y properties
-	 * correlating to the transformed coordinates on the stage.
-	 *
-	 * <h4>Example</h4>
-	 *
-	 *      displayObject.x = 300;
-	 *      displayObject.y = 200;
-	 *      stage.addChild(displayObject);
-	 *      var point = myDisplayObject.localToGlobal(100, 100);
-	 *      // Results in x=400, y=300
-	 *
-	 * @method localToGlobal
-	 * @param {Number} x The x position in the source display object to transform.
-	 * @param {Number} y The y position in the source display object to transform.
-	 * @return {Point} A Point instance with x and y properties correlating to the transformed coordinates
-	 * on the stage.
-	 **/
-	localToGlobal: function(x, y) {
-		var mtx = this.getConcatenatedMatrix(this._matrix);
-		if (mtx == null) { return null; }
-		mtx.append(1, 0, 0, 1, x, y);
-		return this._scratchPoint.reset(mtx.tx, mtx.ty);
-	},
-	
-	/**
-	 * Transforms the specified x and y position from the global (stage) coordinate space to the
-	 * coordinate space of the display object. For example, this could be used to determine
-	 * the current mouse position within the display object. Returns a Point instance with x and y properties
-	 * correlating to the transformed position in the display object's coordinate space.
-	 *
-	 * <h4>Example</h4>
-	 *
-	 *      displayObject.x = 300;
-	 *      displayObject.y = 200;
-	 *      stage.addChild(displayObject);
-	 *      var point = myDisplayObject.globalToLocal(100, 100);
-	 *      // Results in x=-200, y=-100
-	 *
-	 * @method globalToLocal
-	 * @param {Number} x The x position on the stage to transform.
-	 * @param {Number} y The y position on the stage to transform.
-	 * @return {Point} A Point instance with x and y properties correlating to the transformed position in the
-	 * display object's coordinate space.
-	 **/
-	globalToLocal: function(x, y) {
-		var mtx = this.getConcatenatedMatrix(this._matrix);
-		if (mtx == null) { return null; }
-		mtx.invert();
-		mtx.append(1, 0, 0, 1, x, y);
-		return this._scratchPoint.reset(mtx.tx, mtx.ty);
-	},
-
-	/**
-	 * Transforms the specified x and y position from the coordinate space of this display object to the coordinate
-	 * space of the target display object. Returns a Point instance with x and y properties correlating to the
-	 * transformed position in the target's coordinate space. Effectively the same as using the following code with
-	 * {{#crossLink "DisplayObject/localToGlobal"}}{{/crossLink}} and {{#crossLink "DisplayObject/globalToLocal"}}{{/crossLink}}.
-	 *
-	 *      var pt = this.localToGlobal(x, y);
-	 *      pt = target.globalToLocal(pt.x, pt.y);
-	 *
-	 * @method localToLocal
-	 * @param {Number} x The x position in the source display object to transform.
-	 * @param {Number} y The y position on the source display object to transform.
-	 * @param {DisplayObject} target The target display object to which the coordinates will be transformed.
-	 * @return {Point} Returns a Point instance with x and y properties correlating to the transformed position
-	 * in the target's coordinate space.
-	 **/
-	localToLocal: function(x, y, target) {
-		var pt = this.localToGlobal(x, y);
-		return target.globalToLocal(pt.x, pt.y);
-	},
-
-	/**
-	 * Shortcut method to quickly set the transform properties on the display object. All parameters are optional.
-	 * Omitted parameters will have the default value set.
-	 *
-	 * <h4>Example</h4>
-	 *
-	 *      displayObject.setTransform(100, 100, 2, 2);
-	 *
-	 * @method setTransform
-	 * @param {Number} [x=0] The horizontal translation (x position) in pixels
-	 * @param {Number} [y=0] The vertical translation (y position) in pixels
-	 * @param {Number} [scaleX=1] The horizontal scale, as a percentage of 1
-	 * @param {Number} [scaleY=1] the vertical scale, as a percentage of 1
-	 * @param {Number} [angle=0] The angle, in radians
-	 * @param {Number} [skewX=0] The horizontal skew factor
-	 * @param {Number} [skewY=0] The vertical skew factor
-	 * @param {Number} [regX=0] The horizontal registration point in pixels
-	 * @param {Number} [regY=0] The vertical registration point in pixels
-	 * @return {DisplayObject} Returns this instance. Useful for chaining commands.
+	* Returns the framing rectangle of the sprite as a Rectangle object
+	*
+	* @method getBounds
+	* @param matrix {Matrix} the transformation matrix of the sprite
+	* @return {Rectangle} the framing rectangle
 	*/
-	setTransform: function(x, y, scaleX, scaleY, angle, skewX, skewY, regX, regY) {
-		this.position.x = x || 0;
-		this.position.y = y || 0;
-		this.scaleX = scaleX == null ? 1 : scaleX;
-		this.scaleY = scaleY == null ? 1 : scaleY;
-		this.angle = angle || 0;
-		this.skewX = skewX || 0;
-		this.skewY = skewY || 0;
-		this.regX = regX || 0;
-		this.regY = regY || 0;
-		return this;
-	},
+	Sprite.prototype.getBounds = function(matrix) {
+		// TODO: don't create so many fucking variables (unless you love frame hitching)
+		var width = this.frame.width;
+		var height = this.frame.height;
+
+		var w0 = width * (1-this.anchor.x);
+		var w1 = width * -this.anchor.x;
+
+		var h0 = height * (1-this.anchor.y);
+		var h1 = height * -this.anchor.y;
+
+		var worldTransform = matrix || this.worldTransform ;
+
+		var a = worldTransform.a;
+		var b = worldTransform.c;
+		var c = worldTransform.b;
+		var d = worldTransform.d;
+		var tx = worldTransform.tx;
+		var ty = worldTransform.ty;
+
+		var x1 = a * w1 + c * h1 + tx;
+		var y1 = d * h1 + b * w1 + ty;
+
+		var x2 = a * w0 + c * h1 + tx;
+		var y2 = d * h1 + b * w0 + ty;
+
+		var x3 = a * w0 + c * h0 + tx;
+		var y3 = d * h0 + b * w0 + ty;
+
+		var x4 =  a * w1 + c * h0 + tx;
+		var y4 =  d * h0 + b * w1 + ty;
+
+		var maxX = -Infinity;
+		var maxY = -Infinity;
+
+		var minX = Infinity;
+		var minY = Infinity;
+
+		minX = x1 < minX ? x1 : minX;
+		minX = x2 < minX ? x2 : minX;
+		minX = x3 < minX ? x3 : minX;
+		minX = x4 < minX ? x4 : minX;
+
+		minY = y1 < minY ? y1 : minY;
+		minY = y2 < minY ? y2 : minY;
+		minY = y3 < minY ? y3 : minY;
+		minY = y4 < minY ? y4 : minY;
+
+		maxX = x1 > maxX ? x1 : maxX;
+		maxX = x2 > maxX ? x2 : maxX;
+		maxX = x3 > maxX ? x3 : maxX;
+		maxX = x4 > maxX ? x4 : maxX;
+
+		maxY = y1 > maxY ? y1 : maxY;
+		maxY = y2 > maxY ? y2 : maxY;
+		maxY = y3 > maxY ? y3 : maxY;
+		maxY = y4 > maxY ? y4 : maxY;
+
+		var bounds = this._bounds;
+
+		bounds.x = minX;
+		bounds.width = maxX - minX;
+
+		bounds.y = minY;
+		bounds.height = maxY - minY;
+
+		// store a reference so that if this function gets called again in the render cycle we do not have to recalculate
+		this._currentBounds = bounds;
+
+		return bounds;
+	};
 
 	/**
-	 * Returns a matrix based on this object's transform.
-	 * @method getMatrix
-	 * @param {Matrix2} matrix Optional. A Matrix2 object to populate with the calculated values. If null, a new
-	 * Matrix object is returned.
-	 * @return {Matrix2} A matrix representing this display object's transform.
-	 **/
-	getMatrix: function(matrix) {
-		var o = this;
-		return (matrix ? matrix.identity() : new Matrix2()).appendTransform(o.x, o.y, o.scaleX, o.scaleY, o.angle, o.skewX, o.skewY, o.regX, o.regY);
-	},
+	* Renders the object using the Canvas renderer
+	*
+	* @method _renderCanvas
+	* @param renderSession {RenderSession}
+	* @private
+	*/
+	Sprite.prototype.draw = function(ctx) {
+		/*if (this.blendMode !== renderSession.currentBlendMode) {
+			renderSession.currentBlendMode = this.blendMode;
+			ctx.globalCompositeOperation = VonPixi.blendModes[renderSession.currentBlendMode];
+		}*/
+	
+		ctx.globalAlpha = this.worldAlpha;
 
-	/**
-	 * Generates a concatenated Matrix2 object representing the combined transform of the display object and all of its
-	 * parent Containers up to the highest level ancestor (usually the {{#crossLink "Stage"}}{{/crossLink}}). This can
-	 * be used to transform positions between coordinate spaces, such as with {{#crossLink "DisplayObject/localToGlobal"}}{{/crossLink}}
-	 * and {{#crossLink "DisplayObject/globalToLocal"}}{{/crossLink}}.
-	 * @method getConcatenatedMatrix
-	 * @param {Matrix2} [mtx] A {{#crossLink "Matrix2"}}{{/crossLink}} object to populate with the calculated values.
-	 * If null, a new Matrix2 object is returned.
-	 * @return {Matrix2} a concatenated Matrix2 object representing the combined transform of the display object and
-	 * all of its parent Containers up to the highest level ancestor (usually the {{#crossLink "Stage"}}{{/crossLink}}).
-	 **/
-	getConcatenatedMatrix: function(matrix) {
-		if (matrix) { matrix.identity(); }
-		else { matrix = new Matrix2(); }
-		var o = this;
-		while (o != null) {
-			matrix.prependTransform(o.x, o.y, o.scaleX, o.scaleY, o.angle, o.skewX, o.skewY, o.regX, o.regY);
-			o = o.parent;
-		}
-		return matrix;
-	},
+		ctx.setTransform(this.worldTransform.a, this.worldTransform.c, this.worldTransform.b, this.worldTransform.d, this.worldTransform.tx, this.worldTransform.ty);
+		
+		ctx.drawImage(this.texture,
+				this.frame.x,
+				this.frame.y,
+				this.frame.width,
+				this.frame.height,
+				this.anchor.x * -this.frame.width,
+				this.anchor.y * -this.frame.height,
+				this.frame.width,
+				this.frame.height
+			);
+	};
+	
+	return Sprite;
 
-	toString: function() {
-		return "[Sprite (name="+  this.name +")]";
-	},
-};
-return Sprite;
 });

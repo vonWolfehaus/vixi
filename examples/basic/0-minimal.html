@@ -1,0 +1,57 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>pixi.js example 1</title>
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+			background-color: #000;
+		}
+	</style>
+</head>
+<body>
+	
+	<img id="test-image" src="bunny.png" style="display:none;">
+	
+<script src="../../lib/require.js"></script>
+<script>
+require.config({
+	baseUrl: '../../src'
+});
+require(['Stage', 'Sprite'], function(Stage, Sprite) {
+		
+		// create an new instance of a von-pixi stage
+		var stage = new Stage(400, 300);
+
+		// add the stage's canvas element to the DOM
+		document.body.appendChild(stage.view);
+
+		// create a new Sprite using the image loaded in the DOM
+		var bunny = new Sprite( document.getElementById('test-image') );
+
+		// move the sprite to the center of the stage
+		bunny.position.x = 200;
+		bunny.position.y = 150;
+		
+		// don't forget to add him to a Container (or Stage)
+		stage.addChild(bunny);
+		
+		function animate() {
+			// just for fun, let's rotate mr rabbit a little
+			bunny.rotation -= 0.05;
+			
+			// render the stage
+			stage.draw();
+			
+			window.webkitRequestAnimationFrame(animate);
+		}
+		
+		// kick off our animation loop
+		animate();
+	}
+);
+</script>
+
+</body>
+</html>
