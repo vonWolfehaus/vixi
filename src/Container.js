@@ -261,7 +261,9 @@ define(function(require) {
 
 		node = this.children.first;
 		while (node) {
-			node.obj.draw(ctx);
+			if (node.obj.visible && node.obj.alpha > 0) {
+				node.obj.draw(ctx);
+			}
 			node = node.next;
 		}
 	};
