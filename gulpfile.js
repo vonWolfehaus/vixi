@@ -2,19 +2,13 @@ var gulp = require('gulp');
 var rjs = require('gulp-requirejs');
 var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
+var rename = require('gulp-rename');
 
-gulp.task('build-geom', function() {
-	gulp.src('src/geom/*.js')
-		.pipe(concat('lib-geom.js'))
-		.pipe(uglify())
-		.pipe(gulp.dest('dist/'));
-});
-
-gulp.task('build', function() {
+gulp.task('build-geo', function() {
 	rjs({
 		baseUrl: 'src',
-		out: 'von-canvas2d.js',
-		include: ['Container', 'Sprite'],
+		out: 'von.geom.js',
+		include: ['Matrix2', 'Rectangle', 'Point'],
 		wrap: true,
 		keepAmdefine: false
 	})
@@ -22,10 +16,33 @@ gulp.task('build', function() {
 		.pipe(gulp.dest('dist/'));
 });
 
-gulp.task('all', ['build-geom', 'build'], function() {
-	gulp.src(['dist/lib-geom.js', '../lib/LinkedList.js', 'dist/von-canvas2d.js'])
-		.pipe(concat('von-canvas2d-all.js'))
+gulp.task('build-dev', function() {
+	rjs({
+			baseUrl: 'src',
+			include: ['Sprite', 'Stage'],
+			onBuildWrite: function(name, path, contents) {
+				return require('amdclean').clean({
+					code: contents,
+					removeAllRequires: true,
+					globalObject: true,
+					globalObjectName: 'von2d'/*,
+					globalModules: []*/
+				});
+			},
+			out: 'von2d.js',
+			findNestedDependencies: true,
+			wrap: false,
+			keepAmdefine: false
+		})
 		.pipe(gulp.dest('dist/'));
 });
 
-gulp.task('default', ['all']);
+gulp.task('build-release', ['build-dev'], function() {
+	gulp.src('dist/von2d.js')
+		.pipe(uglify({ outSourceMap: true }))
+		.pipe(rename({ suffix: '.min' }))
+		.pipe(gulp.dest('dist/'));
+});
+
+
+gulp.task('default', ['build-release']);
