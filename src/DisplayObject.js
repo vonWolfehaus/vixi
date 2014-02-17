@@ -229,7 +229,11 @@ define(function (require) {
 
 		return this.getBounds(identityMatrix);///EmptyRectangle();
 	};*/
-
+	
+	DisplayObject.prototype.setStageReference = function(stage) {
+		this.stage = stage;
+	};
+	
 	/**
 	* Renders the object using the Canvas renderer
 	*

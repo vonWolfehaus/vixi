@@ -34,14 +34,36 @@ define(function(require) {
 	Container.prototype.constructor = Container;
 
 	/**
-	 * Adds a child to the container.
+	 * Adds a child to the top of the display list.
+	 *
+	 * <h4>Example</h4>
+	 *      container.addChild(bitmapInstance);
+	 *
+	 *  You can also add multiple children at once:
+	 *
+	 *      container.addChild(bitmapInstance, shapeInstance, textInstance);
 	 *
 	 * @method addChild
-	 * @param child {DisplayObject} The DisplayObject to add to the container
-	 */
+	 * @param {DisplayObject} child The display object to add.
+	 * @return {DisplayObject} The child that was added, or the last child if multiple children were added.
+	 **/
 	Container.prototype.addChild = function(child) {
-		this.children.add(child);
+		var i, l = arguments.length;
+		if (l > 1) {
+			for (i = 0; i < l; i++) {
+				this.addChild(arguments[i]);
+			}
+			return arguments[l-1];
+		}
+		if (child.parent) {
+			child.parent.removeChild(child);
+		}
 		child.parent = this;
+		if (this.stage) {
+			child.setStageReference(this.stage);
+		}
+		this.children.add(child);
+		return child;
 	};
 	
 	/**
@@ -49,10 +71,31 @@ define(function(require) {
 	 *
 	 * @method removeChild
 	 * @param child {DisplayObject} The DisplayObject to remove
+	 * @return The child if it existed in this container, or null otherwise.
 	 */
 	Container.prototype.removeChild = function(child) {
-		this.children.remove(child);
 		child.parent = null;
+		if (this.stage) {
+			child.stage = null;
+		}
+		return this.children.remove(child);
+	};
+	
+	/**
+	 * Returns true if the specified display object either is this container or is a descendent (child, grandchild, etc)
+	 * of this container.
+	 * @method contains
+	 * @param {DisplayObject} child The DisplayObject to be checked.
+	 * @return {Boolean} true if the specified display object either is this container or is a descendent.
+	 **/
+	Container.prototype.contains = function(child) {
+		while (child) {
+			if (child === this) {
+				return true;
+			}
+			child = child.parent;
+		}
+		return false;
 	};
 	
 	/*
@@ -127,6 +170,7 @@ define(function(require) {
 
 			maxX = maxX > childMaxX ? maxX : childMaxX;
 			maxY = maxY > childMaxY ? maxY : childMaxY;
+			
 			node = node.next;
 		}
 
@@ -156,6 +200,7 @@ define(function(require) {
 		node = this.children.first;
 		while (node) {
 			node.obj.updateTransform();
+			node = node.next;
 		}
 
 		var bounds = this.getBounds();
@@ -178,6 +223,7 @@ define(function(require) {
 		node = this.children.first;
 		while (node) {
 			node.obj.setStageReference(stage);
+			node = node.next;
 		}
 	};
 
@@ -190,6 +236,7 @@ define(function(require) {
 		var node = this.children.first;
 		while (node) {
 			node.obj.removeStageReference();
+			node = node.next;
 		}
 
 		if (this._interactive) {
@@ -215,6 +262,7 @@ define(function(require) {
 		node = this.children.first;
 		while (node) {
 			node.obj.draw(ctx);
+			node = node.next;
 		}
 	};
 

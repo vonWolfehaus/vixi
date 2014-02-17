@@ -1,0 +1,79 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>example 1</title>
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+			background-color: #000;
+		}
+	</style>
+</head>
+<body>
+	
+	<img id="test-image" src="beetle.png" style="display:none;">
+	
+<script src="../../lib/require.js"></script>
+<script>
+require.config({
+	baseUrl: '../../src'
+});
+require(['Stage', 'Sprite', 'Container'], function(Stage, Sprite, Container) {
+		
+	// create an new instance of a von-pixi stage
+	var stage = new Stage(600, 500);
+
+	// add the stage's canvas element to the DOM
+	document.body.appendChild(stage.view);
+
+	// create a container to use to group a bunch of sprites together
+	var container = new Container();
+	// move it to the center
+	container.position.x = stage.width / 2;
+	container.position.y = stage.height / 2;
+	
+	container.pivot.x = 200;
+	container.pivot.y = 150;
+	
+	var img = document.getElementById('test-image');
+	var i, spr;
+	var spacing = 70, offX = 150, offY = 150, 
+		rowX = 0, rowY = 0, rowMax = 4;
+	
+	// add a bunch of sprites into rows and add them to our new container
+	for (i = 0; i < 12; i++) {
+		spr = new Sprite(img);
+		spr.position.x = (rowX * spacing) + offX;
+		spr.position.y = (rowY * spacing) + offY;
+		
+		container.addChild(spr);
+		
+		rowX++;
+		if (rowX === rowMax) {
+			rowX = 0;
+			rowY++;
+		}
+	}
+
+	// now we just need to add the container to the stage, and everything goes with it
+	stage.addChild(container);
+	
+	function animate() {
+		// rotate the container and everything in it rotates accordingly! SUPER FUN
+		container.rotation += 0.03;
+		
+		// render the stage
+		stage.draw();
+		
+		window.webkitRequestAnimationFrame(animate);
+	}
+	
+	// kick off our animation loop
+	animate();
+	
+});
+</script>
+
+</body>
+</html>

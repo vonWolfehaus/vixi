@@ -98,7 +98,7 @@ define(function(require) {
 		 */
 		this.worldTransform = new Matrix();
 		
-		//the stage is its own stage
+		// the stage is its own stage
 		this.stage = this;
 	};
 

@@ -1,0 +1,100 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>example 1</title>
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+			background-color: #000;
+		}
+	</style>
+</head>
+<body>
+	
+	<img id="test-image" src="bunny.png" style="display:none;">
+	
+<script src="../../lib/require.js"></script>
+<script>
+require.config({
+	baseUrl: '../../src'
+});
+require(['Stage', 'Sprite', 'Container'], function(Stage, Sprite, Container) {
+		
+	// create an new instance of a von-pixi stage
+	var stage = new Stage(500, 400);
+
+	// add the stage's canvas element to the DOM
+	document.body.appendChild(stage.view);
+
+	// create a container to use to group a bunch of sprites together
+	// all positions are RELATIVE to their PARENT! keep that in mind!
+	var containerOne = new Container();
+	containerOne.position.x = stage.width / 2;
+	containerOne.position.y = stage.height / 2;
+	containerOne.pivot.x = stage.width / 2;
+	containerOne.pivot.y = stage.height / 2;
+	
+	var containerTwo = new Container();
+	containerTwo.position.x = stage.width / 2;
+	containerTwo.position.y = stage.height / 2;
+	containerTwo.pivot.x = stage.width / 2;
+	containerTwo.pivot.y = stage.height / 2;
+	
+	// now we'll add a circle of bunnies around another circle of bunnies! SO FLUFFY
+	var img = document.getElementById('test-image');
+	var i, o, total = 5,
+		tau = Math.PI * 2,
+		a = 0, ao = tau / total,
+		wx = stage.width / 2, wy = stage.height / 2;
+	
+	// inner circle
+	for (i = 0; i < total; i++) {
+		o = new Sprite(img);
+		o.position.reset(Math.cos(a) * 50 + wx, Math.sin(a) * 50 + wy);
+		containerOne.addChild(o);
+		a += ao;
+	}
+	
+	// outer circle
+	total = 8;
+	a = 0;
+	ao = tau / total;
+	for (i = 0; i < total; i++) {
+		o = new Sprite(img);
+		o.position.reset(Math.cos(a) * 100 + wx, Math.sin(a) * 100 + wy);
+		containerTwo.addChild(o);
+		a += ao;
+	}
+	
+	// ok but let's also make a THIRD container that contains the other two, and swing it around!
+	var containerThree = new Container();
+	
+	containerThree.addChild(containerOne);
+	containerThree.addChild(containerTwo);
+
+	// now we just need to add the container to the stage, and everything goes with it
+	stage.addChild(containerThree);
+	
+	function animate() {
+		// MOAR SUPER FUN
+		containerOne.rotation -= 0.03;
+		containerTwo.rotation += 0.03;
+		
+		containerThree.position.x = Math.sin(a) * 100;
+		a += 0.05;
+		
+		// render the stage
+		stage.draw();
+		
+		window.webkitRequestAnimationFrame(animate);
+	}
+	
+	// kick off our animation loop
+	animate();
+	
+});
+</script>
+
+</body>
+</html>

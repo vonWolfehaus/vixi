@@ -9,7 +9,7 @@ define(function (require) {
 		p.y = this.y;
 	};
 	
-	Point.prototype.set = function() {
+	Point.prototype.reset = function(x, y) {
 		this.x = x || 0;
     	this.y = y || ( (y !== 0) ? this.x : 0 );
 	};
