@@ -42,26 +42,18 @@ gulp.task('dev', function() {
 		.pipe(gulp.dest('dist/'));
 });
 
-/*
-gulp.task('dev', function() {
-	var i, dir = 'src/',
-		allFiles = fs.readdirSync(dir);
-	
-	for (i = 0; i < allFiles.length; i++) {
-		allFiles[i] = dir + allFiles[i];
-	}
-	
-	gulp.src(allFiles)
-		.pipe(resolve({
-				log: true,
-				pattern: /\* @require (.*?\.js)/g
-			}))
-		// .pipe(uglify({ outSourceMap: true }))
-		.pipe(concat('von2d.js'))
-		// .pipe(rename({ suffix: '.min' }))
-		.pipe(gulp.dest('dist/'));
-});
-*/
+
+// gulp.task('dev', function() {
+// 	gulp.src('src/**/*.js')
+// 		.pipe(resolve({
+// 				log: true,
+// 				pattern: / @require (.*?\.js)/g
+// 			}))
+// 		// .pipe(uglify({ outSourceMap: true }))
+// 		.pipe(concat('von2d.js'))
+// 		// .pipe(rename({ suffix: '.min' }))
+// 		.pipe(gulp.dest('dist/'));
+// });
 
 // gulp.task('watch', function() {
 // 	gulp.watch('src/**/*.js', ['dev']);
