@@ -75,7 +75,7 @@ von2d['Point'] = function (require) {
         p.x = this.x;
         p.y = this.y;
     };
-    Point.prototype.set = function () {
+    Point.prototype.reset = function (x, y) {
         this.x = x || 0;
         this.y = y || (y !== 0 ? this.x : 0);
     };
@@ -393,6 +393,9 @@ von2d['DisplayObject'] = function (require, VonPixi, Point, Rectangle, Matrix2) 
     DisplayObject.prototype.getBounds = function (matrix) {
         matrix = matrix;
         return VonPixi.EmptyRectangle;
+    };
+    DisplayObject.prototype.setStageReference = function (stage) {
+        this.stage = stage;
     };
     DisplayObject.prototype.draw = function (ctx) {
         ctx = ctx;
@@ -726,12 +729,38 @@ von2d['Container'] = function (require, VonPixi, DisplayObject, LinkedList) {
     Container.prototype = Object.create(DisplayObject.prototype);
     Container.prototype.constructor = Container;
     Container.prototype.addChild = function (child) {
-        this.children.add(child);
+        var i, l = arguments.length;
+        if (l > 1) {
+            for (i = 0; i < l; i++) {
+                this.addChild(arguments[i]);
+            }
+            return arguments[l - 1];
+        }
+        if (child.parent) {
+            child.parent.removeChild(child);
+        }
         child.parent = this;
+        if (this.stage) {
+            child.setStageReference(this.stage);
+        }
+        this.children.add(child);
+        return child;
     };
     Container.prototype.removeChild = function (child) {
-        this.children.remove(child);
         child.parent = null;
+        if (this.stage) {
+            child.stage = null;
+        }
+        return this.children.remove(child);
+    };
+    Container.prototype.contains = function (child) {
+        while (child) {
+            if (child === this) {
+                return true;
+            }
+            child = child.parent;
+        }
+        return false;
     };
     Container.prototype.updateTransform = function () {
         var node;
@@ -797,6 +826,7 @@ von2d['Container'] = function (require, VonPixi, DisplayObject, LinkedList) {
         node = this.children.first;
         while (node) {
             node.obj.updateTransform();
+            node = node.next;
         }
         var bounds = this.getBounds();
         this.worldTransform = matrixCache;
@@ -808,12 +838,14 @@ von2d['Container'] = function (require, VonPixi, DisplayObject, LinkedList) {
         node = this.children.first;
         while (node) {
             node.obj.setStageReference(stage);
+            node = node.next;
         }
     };
     Container.prototype.removeStageReference = function () {
         var node = this.children.first;
         while (node) {
             node.obj.removeStageReference();
+            node = node.next;
         }
         if (this._interactive) {
             this.stage.dirty = true;
@@ -828,6 +860,7 @@ von2d['Container'] = function (require, VonPixi, DisplayObject, LinkedList) {
         node = this.children.first;
         while (node) {
             node.obj.draw(ctx);
+            node = node.next;
         }
     };
     return Container;
