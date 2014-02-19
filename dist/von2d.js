@@ -34,9 +34,9 @@ von2d['Rectangle'] = function (require) {
     };
     return Rectangle;
 }({});
-von2d['VonPixi'] = function (require, Rectangle) {
+von2d['GS'] = function (require, Rectangle) {
     var Rectangle = Rectangle;
-    var VonPixi = {
+    var GS = {
             blendModes: {
                 NORMAL: 0,
                 ADD: 1,
@@ -64,7 +64,7 @@ von2d['VonPixi'] = function (require, Rectangle) {
             },
             EmptyRectangle: new Rectangle()
         };
-    return VonPixi;
+    return GS;
 }({}, von2d['Rectangle']);
 von2d['Point'] = function (require) {
     var Point = function (x, y) {
@@ -88,8 +88,7 @@ von2d['Point'] = function (require) {
     return Point;
 }({});
 /*
-* Matrix2
-* From http://createjs.com/ without a bunch of properties I don't use.
+	Matrix2d. BORROWED from easeljs, tho I ripped a ton of stuff out since none of it is used, but the rest seem like they might come in handy later on. Maybe.
 */
 von2d['Matrix2'] = function (require) {
     var Matrix2 = function (a, b, c, d, tx, ty) {
@@ -99,87 +98,6 @@ von2d['Matrix2'] = function (require) {
         this.d = !d ? 1 : d;
         this.tx = tx || 0;
         this.ty = ty || 0;
-        return this;
-    };
-    var PI = Math.PI;
-    var TAU = PI * 2;
-    Matrix2.identity = null;
-    Matrix2.DEG_TO_RAD = Math.PI / 180;
-    Matrix2.prototype.prepend = function (a, b, c, d, tx, ty) {
-        var a1, c1, tx1 = this.tx;
-        if (a !== 1 || b !== 0 || c !== 0 || d !== 1) {
-            a1 = this.a;
-            c1 = this.c;
-            this.a = a1 * a + this.b * c;
-            this.b = a1 * b + this.b * d;
-            this.c = c1 * a + this.d * c;
-            this.d = c1 * b + this.d * d;
-        }
-        this.tx = tx1 * a + this.ty * c + tx;
-        this.ty = tx1 * b + this.ty * d + ty;
-        return this;
-    };
-    Matrix2.prototype.append = function (a, b, c, d, tx, ty) {
-        var a1 = this.a;
-        var b1 = this.b;
-        var c1 = this.c;
-        var d1 = this.d;
-        this.a = a * a1 + b * c1;
-        this.b = a * b1 + b * d1;
-        this.c = c * a1 + d * c1;
-        this.d = c * b1 + d * d1;
-        this.tx = tx * a1 + ty * c1 + this.tx;
-        this.ty = tx * b1 + ty * d1 + this.ty;
-        return this;
-    };
-    Matrix2.prototype.prependMatrix = function (matrix) {
-        this.prepend(matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty);
-        return this;
-    };
-    Matrix2.prototype.appendMatrix = function (matrix) {
-        this.append(matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty);
-        return this;
-    };
-    Matrix2.prototype.prependTransform = function (x, y, scaleX, scaleY, rotation, skewX, skewY, regX, regY) {
-        var cos, sin;
-        if (rotation % TAU) {
-            cos = Math.cos(rotation);
-            sin = Math.sin(rotation);
-        } else {
-            cos = 1;
-            sin = 0;
-        }
-        if (regX || regY) {
-            this.tx -= regX;
-            this.ty -= regY;
-        }
-        if (skewX || skewY) {
-            this.prepend(cos * scaleX, sin * scaleX, -sin * scaleY, cos * scaleY, 0, 0);
-            this.prepend(Math.cos(skewY), Math.sin(skewY), -Math.sin(skewX), Math.cos(skewX), x, y);
-        } else {
-            this.prepend(cos * scaleX, sin * scaleX, -sin * scaleY, cos * scaleY, x, y);
-        }
-        return this;
-    };
-    Matrix2.prototype.appendTransform = function (x, y, scaleX, scaleY, rotation, skewX, skewY, regX, regY) {
-        var cos, sin;
-        if (rotation % TAU) {
-            cos = Math.cos(rotation);
-            sin = Math.sin(rotation);
-        } else {
-            cos = 1;
-            sin = 0;
-        }
-        if (skewX || skewY) {
-            this.append(Math.cos(skewY), Math.sin(skewY), -Math.sin(skewX), Math.cos(skewX), x, y);
-            this.append(cos * scaleX, sin * scaleX, -sin * scaleY, cos * scaleY, 0, 0);
-        } else {
-            this.append(cos * scaleX, sin * scaleX, -sin * scaleY, cos * scaleY, x, y);
-        }
-        if (regX || regY) {
-            this.tx -= regX * this.a + regY * this.c;
-            this.ty -= regX * this.b + regY * this.d;
-        }
         return this;
     };
     Matrix2.prototype.rotate = function (angle) {
@@ -219,52 +137,6 @@ von2d['Matrix2'] = function (require) {
         this.b = this.c = this.tx = this.ty = 0;
         return this;
     };
-    Matrix2.prototype.invert = function () {
-        var a1 = this.a;
-        var b1 = this.b;
-        var c1 = this.c;
-        var d1 = this.d;
-        var tx1 = this.tx;
-        var n = a1 * d1 - b1 * c1;
-        this.a = d1 / n;
-        this.b = -b1 / n;
-        this.c = -c1 / n;
-        this.d = a1 / n;
-        this.tx = (c1 * this.ty - d1 * tx1) / n;
-        this.ty = -(a1 * this.ty - b1 * tx1) / n;
-        return this;
-    };
-    Matrix2.prototype.isIdentity = function () {
-        return this.tx === 0 && this.ty === 0 && this.a === 1 && this.b === 0 && this.c === 0 && this.d === 1;
-    };
-    Matrix2.prototype.transformPoint = function (x, y, pt) {
-        pt = pt || {};
-        pt.x = x * this.a + y * this.c + this.tx;
-        pt.y = x * this.b + y * this.d + this.ty;
-        return pt;
-    };
-    Matrix2.prototype.decompose = function (target) {
-        if (!target) {
-            target = {};
-        }
-        target.x = this.tx;
-        target.y = this.ty;
-        target.scaleX = Math.sqrt(this.a * this.a + this.b * this.b);
-        target.scaleY = Math.sqrt(this.c * this.c + this.d * this.d);
-        var skewX = Math.atan2(-this.c, this.d);
-        var skewY = Math.atan2(this.b, this.a);
-        if (skewX == skewY) {
-            target.rotation = skewY;
-            if (this.a < 0 && this.d >= 0) {
-                target.rotation += target.rotation <= 0 ? PI : -PI;
-            }
-            target.skewX = target.skewY = 0;
-        } else {
-            target.skewX = skewX;
-            target.skewY = skewY;
-        }
-        return target;
-    };
     Matrix2.prototype.fromArray = function (array) {
         this.a = array[0];
         this.b = array[1];
@@ -276,7 +148,6 @@ von2d['Matrix2'] = function (require) {
     Matrix2.prototype.toArray = function (transpose) {
         if (!this.array)
             this.array = new Float32Array(9);
-        var array = this.array;
         if (transpose) {
             this.array[0] = this.a;
             this.array[1] = this.c;
@@ -298,7 +169,7 @@ von2d['Matrix2'] = function (require) {
             this.array[7] = 0;
             this.array[8] = 1;
         }
-        return array;
+        return this.array;
     };
     Matrix2.prototype.copy = function (matrix) {
         this.a = matrix.a;
@@ -315,14 +186,13 @@ von2d['Matrix2'] = function (require) {
     Matrix2.prototype.toString = function () {
         return '[Matrix2 (a=' + this.a + ' b=' + this.b + ' c=' + this.c + ' d=' + this.d + ' tx=' + this.tx + ' ty=' + this.ty + ')]';
     };
-    Matrix2.identity = new Matrix2();
     return Matrix2;
 }({});
 /**
  * @author Mat Groves http://matgroves.com/ @Doormat23
  */
-von2d['DisplayObject'] = function (require, VonPixi, Point, Rectangle, Matrix2) {
-    var VonPixi = VonPixi;
+von2d['DisplayObject'] = function (require, GS, Point, Rectangle, Matrix2) {
+    var GS = GS;
     var Point = Point;
     var Rectangle = Rectangle;
     var Matrix = Matrix2;
@@ -392,7 +262,7 @@ von2d['DisplayObject'] = function (require, VonPixi, Point, Rectangle, Matrix2) 
     };
     DisplayObject.prototype.getBounds = function (matrix) {
         matrix = matrix;
-        return VonPixi.EmptyRectangle;
+        return GS.EmptyRectangle;
     };
     DisplayObject.prototype.setStageReference = function (stage) {
         this.stage = stage;
@@ -417,14 +287,14 @@ von2d['DisplayObject'] = function (require, VonPixi, Point, Rectangle, Matrix2) 
         }
     });
     return DisplayObject;
-}({}, von2d['VonPixi'], von2d['Point'], von2d['Rectangle'], von2d['Matrix2']);
+}({}, von2d['GS'], von2d['Point'], von2d['Rectangle'], von2d['Matrix2']);
 /*
 	Mat made a fine Sprite... except for all the local variable created in functions, that shit will thrash the garbage reeaaaally hard. Anyway, I stripped out masking, filters, and other things to make it lighter and faster. I recommend just going with the PIXI rendering engine and not this version unless you have your own loader and compatibility isn't an issue. Also removed WebGL support, because it doesn't exist where I go.
 	
 	@author Mat Groves http://matgroves.com/ @Doormat23
 */
-von2d['Sprite'] = function (require, VonPixi, DisplayObject, Point, Rectangle) {
-    var VonPixi = VonPixi;
+von2d['Sprite'] = function (require, GS, DisplayObject, Point, Rectangle) {
+    var GS = GS;
     var DisplayObject = DisplayObject;
     var Point = Point;
     var Rectangle = Rectangle;
@@ -437,7 +307,7 @@ von2d['Sprite'] = function (require, VonPixi, DisplayObject, Point, Rectangle) {
         this.frame = frame || new Rectangle(0, 0, image.width, image.height);
         this.scale.x = this._width / this.frame.width;
         this.scale.y = this._height / this.frame.height;
-        this.blendMode = VonPixi.blendModes.NORMAL;
+        this.blendMode = GS.blendModes.NORMAL;
         this.renderable = true;
     };
     Sprite.prototype = Object.create(DisplayObject.prototype);
@@ -516,7 +386,7 @@ von2d['Sprite'] = function (require, VonPixi, DisplayObject, Point, Rectangle) {
         ctx.drawImage(this.texture, this.frame.x, this.frame.y, this.frame.width, this.frame.height, this.anchor.x * -this.frame.width, this.anchor.y * -this.frame.height, this.frame.width, this.frame.height);
     };
     return Sprite;
-}({}, von2d['VonPixi'], von2d['DisplayObject'], von2d['Point'], von2d['Rectangle']);
+}({}, von2d['GS'], von2d['DisplayObject'], von2d['Point'], von2d['Rectangle']);
 /**
  * @source https://github.com/martinwells/gamecore.js
  * Hoisted to the global namespace for convenience.
@@ -718,13 +588,14 @@ von2d['LinkedList'] = function () {
 /**
  * @author Mat Groves http://matgroves.com/ @Doormat23
  */
-von2d['Container'] = function (require, VonPixi, DisplayObject, LinkedList) {
-    var VonPixi = VonPixi;
+von2d['Container'] = function (require, GS, DisplayObject, LinkedList) {
+    var GS = GS;
     var DisplayObject = DisplayObject;
     var LinkedList = LinkedList;
     Container = function () {
         DisplayObject.call(this);
         this.children = new LinkedList();
+        this._scratch = null;
     };
     Container.prototype = Object.create(DisplayObject.prototype);
     Container.prototype.constructor = Container;
@@ -763,21 +634,20 @@ von2d['Container'] = function (require, VonPixi, DisplayObject, LinkedList) {
         return false;
     };
     Container.prototype.updateTransform = function () {
-        var node;
         if (!this.visible) {
             return;
         }
         DisplayObject.prototype.updateTransform.call(this);
-        node = this.children.first;
-        while (node) {
-            node.obj.updateTransform();
-            node = node.next;
+        this._scratch = this.children.first;
+        while (this._scratch) {
+            this._scratch.obj.updateTransform();
+            this._scratch = this._scratch.next;
         }
     };
     Container.prototype.getBounds = function (matrix) {
         var node;
         if (this.children.length === 0) {
-            return VonPixi.EmptyRectangle;
+            return GS.EmptyRectangle;
         }
         if (matrix) {
             var matrixCache = this.worldTransform;
@@ -810,7 +680,7 @@ von2d['Container'] = function (require, VonPixi, DisplayObject, LinkedList) {
             node = node.next;
         }
         if (!childVisible) {
-            return VonPixi.EmptyRectangle;
+            return GS.EmptyRectangle;
         }
         var bounds = this._bounds;
         bounds.x = minX;
@@ -847,53 +717,46 @@ von2d['Container'] = function (require, VonPixi, DisplayObject, LinkedList) {
             node.obj.removeStageReference();
             node = node.next;
         }
-        if (this._interactive) {
-            this.stage.dirty = true;
-        }
         this.stage = null;
     };
     Container.prototype.draw = function (ctx) {
-        var node;
-        if (this.visible === false || this.alpha === 0) {
-            return;
-        }
-        node = this.children.first;
-        while (node) {
-            if (node.obj.visible && node.obj.alpha > 0) {
-                node.obj.draw(ctx);
+        this._scratch = this.children.first;
+        while (this._scratch) {
+            if (this._scratch.obj.visible && this._scratch.obj.alpha > 0) {
+                this._scratch.obj.draw(ctx);
             }
-            node = node.next;
+            this._scratch = this._scratch.next;
         }
     };
     return Container;
-}({}, von2d['VonPixi'], von2d['DisplayObject'], von2d['LinkedList']);
+}({}, von2d['GS'], von2d['DisplayObject'], von2d['LinkedList']);
 /**
  * @author Mat Groves http://matgroves.com/ @Doormat23
  */
-von2d['Stage'] = function (require, VonPixi, Container, Matrix2) {
-    var VonPixi = VonPixi;
+von2d['Stage'] = function (require, GS, Container, Matrix2) {
+    var GS = GS;
     var Container = Container;
     var Matrix = Matrix2;
     var Stage = function (width, height, view) {
         Container.call(this);
         this.clearBeforeRender = true;
-        VonPixi.blendModesCanvas[VonPixi.blendModes.NORMAL] = 'source-over';
-        VonPixi.blendModesCanvas[VonPixi.blendModes.ADD] = 'lighter';
-        VonPixi.blendModesCanvas[VonPixi.blendModes.MULTIPLY] = 'multiply';
-        VonPixi.blendModesCanvas[VonPixi.blendModes.SCREEN] = 'screen';
-        VonPixi.blendModesCanvas[VonPixi.blendModes.OVERLAY] = 'overlay';
-        VonPixi.blendModesCanvas[VonPixi.blendModes.DARKEN] = 'darken';
-        VonPixi.blendModesCanvas[VonPixi.blendModes.LIGHTEN] = 'lighten';
-        VonPixi.blendModesCanvas[VonPixi.blendModes.COLOR_DODGE] = 'color-dodge';
-        VonPixi.blendModesCanvas[VonPixi.blendModes.COLOR_BURN] = 'color-burn';
-        VonPixi.blendModesCanvas[VonPixi.blendModes.HARD_LIGHT] = 'hard-light';
-        VonPixi.blendModesCanvas[VonPixi.blendModes.SOFT_LIGHT] = 'soft-light';
-        VonPixi.blendModesCanvas[VonPixi.blendModes.DIFFERENCE] = 'difference';
-        VonPixi.blendModesCanvas[VonPixi.blendModes.EXCLUSION] = 'exclusion';
-        VonPixi.blendModesCanvas[VonPixi.blendModes.HUE] = 'hue';
-        VonPixi.blendModesCanvas[VonPixi.blendModes.SATURATION] = 'saturation';
-        VonPixi.blendModesCanvas[VonPixi.blendModes.COLOR] = 'color';
-        VonPixi.blendModesCanvas[VonPixi.blendModes.LUMINOSITY] = 'luminosity';
+        GS.blendModesCanvas[GS.blendModes.NORMAL] = 'source-over';
+        GS.blendModesCanvas[GS.blendModes.ADD] = 'lighter';
+        GS.blendModesCanvas[GS.blendModes.MULTIPLY] = 'multiply';
+        GS.blendModesCanvas[GS.blendModes.SCREEN] = 'screen';
+        GS.blendModesCanvas[GS.blendModes.OVERLAY] = 'overlay';
+        GS.blendModesCanvas[GS.blendModes.DARKEN] = 'darken';
+        GS.blendModesCanvas[GS.blendModes.LIGHTEN] = 'lighten';
+        GS.blendModesCanvas[GS.blendModes.COLOR_DODGE] = 'color-dodge';
+        GS.blendModesCanvas[GS.blendModes.COLOR_BURN] = 'color-burn';
+        GS.blendModesCanvas[GS.blendModes.HARD_LIGHT] = 'hard-light';
+        GS.blendModesCanvas[GS.blendModes.SOFT_LIGHT] = 'soft-light';
+        GS.blendModesCanvas[GS.blendModes.DIFFERENCE] = 'difference';
+        GS.blendModesCanvas[GS.blendModes.EXCLUSION] = 'exclusion';
+        GS.blendModesCanvas[GS.blendModes.HUE] = 'hue';
+        GS.blendModesCanvas[GS.blendModes.SATURATION] = 'saturation';
+        GS.blendModesCanvas[GS.blendModes.COLOR] = 'color';
+        GS.blendModesCanvas[GS.blendModes.LUMINOSITY] = 'luminosity';
         this.width = width || 800;
         this.height = height || 600;
         this.view = view || document.createElement('canvas');
@@ -902,27 +765,28 @@ von2d['Stage'] = function (require, VonPixi, Container, Matrix2) {
         this.view.height = this.height;
         this.worldTransform = new Matrix();
         this.stage = this;
+        this._scratch = null;
     };
     Stage.prototype = Object.create(Container.prototype);
     Stage.prototype.constructor = Stage;
     Stage.prototype.draw = function () {
-        var node = this.children.first;
+        this._scratch = this.children.first;
         this.worldAlpha = 1;
-        while (node) {
-            node.obj.updateTransform();
-            node = node.next;
+        while (this._scratch) {
+            this._scratch.obj.updateTransform();
+            this._scratch = this._scratch.next;
         }
         this.context.setTransform(1, 0, 0, 1, 0, 0);
         this.context.globalAlpha = 1;
         if (this.clearBeforeRender) {
             this.context.clearRect(0, 0, this.width, this.height);
         }
-        node = this.children.first;
-        while (node) {
-            if (node.obj.visible && node.obj.alpha > 0) {
-                node.obj.draw(this.context);
+        this._scratch = this.children.first;
+        while (this._scratch) {
+            if (this._scratch.obj.visible && this._scratch.obj.alpha > 0) {
+                this._scratch.obj.draw(this.context);
             }
-            node = node.next;
+            this._scratch = this._scratch.next;
         }
     };
     Stage.prototype.resize = function (width, height) {
@@ -932,4 +796,4 @@ von2d['Stage'] = function (require, VonPixi, Container, Matrix2) {
         this.view.height = height;
     };
     return Stage;
-}({}, von2d['VonPixi'], von2d['Container'], von2d['Matrix2']);
+}({}, von2d['GS'], von2d['Container'], von2d['Matrix2']);

@@ -1,0 +1,87 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>example 1</title>
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+			background-color: #000;
+		}
+	</style>
+</head>
+<body>
+	
+	<img id="test-image" src="bunny.png" style="display:none;">
+	
+<script src="../../dist/von2d.min.js"></script>
+<script>
+window.addEventListener('load', function(evt) {
+	
+	// create an new instance of a von2d stage
+	var stage = new von2d.Stage(400, 400);
+	
+	var numSprites = 12;
+	var sprites = [];
+	
+	// we need to store the alpha of each sprite so we can pick up where it left off for each animation frame
+	var spriteAlphas = [];
+	
+	// add the stage's canvas element to the DOM
+	document.body.appendChild(stage.view);
+	
+	var img = document.getElementById('test-image');
+	var i, spr;
+	var spacing = 70, offX = 100, offY = 100, 
+		rowX = 0, rowY = 0, rowMax = 4;
+	
+	// add a bunch of sprites into rows and add them to the stage (where we make them dance for our amusement)
+	for (i = 0; i < numSprites; i++) {
+		spr = new von2d.Sprite(img);
+		spr.position.x = (rowX * spacing) + offX;
+		spr.position.y = (rowY * spacing) + offY;
+		
+		sprites[i] = spr;
+		
+		// write in a random value for the sine function later on so they blink at different times
+		spriteAlphas[i] = Math.random() * Math.PI - Math.PI;
+		
+		stage.addChild(spr);
+		
+		rowX++;
+		if (rowX === rowMax) {
+			rowX = 0;
+			rowY++;
+		}
+	}
+	
+	function animate() {
+		var i, spr, alpha;
+		
+		// go through each sprite and mess with its alpha. BAM. BLINKIN LIGHTS.
+		for (i = 0; i < numSprites; i++) {
+			spr = sprites[i];
+			
+			alpha = spriteAlphas[i];
+			alpha += 0.01;
+			
+			// god i love sine. we make it absolute because alpha goes 0-1, so we make sure it's always positive (but it will go over 1 in this case, we just don't care, it will still display)
+			spr.alpha = Math.abs(Math.sin(alpha));
+			
+			spriteAlphas[i] = alpha;
+		}
+		
+		// render the stage
+		stage.draw();
+		
+		window.webkitRequestAnimationFrame(animate);
+	}
+	
+	// kick off our animation loop
+	animate();
+	
+}, false);
+</script>
+
+</body>
+</html>
