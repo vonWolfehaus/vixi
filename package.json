@@ -5,8 +5,8 @@
     "email": "vonWolfehaus@gmail.com",
     "url": "https://github.com/vonWolfehaus/von-canvas2d"
   },
-  "version": "0.0.1",
-  "description": "Small, fast image drawing library for the HTML canvas element.",
+  "version": "1.0.0",
+  "description": "Small, fast image drawing library for the HTML5 canvas element.",
   "dependencies": {},
   "devDependencies": {
     "gulp": "~3.5.0",
