@@ -6,7 +6,7 @@
 define(function(require) {
 
 	// imports
-	var VonPixi = require('VonPixi');
+	var GS = require('GS');
 	var DisplayObject = require('DisplayObject');
 	var Point = require('Point');
 	var Rectangle = require('Rectangle');
@@ -73,7 +73,7 @@ define(function(require) {
 		 * @type Number
 		 * @default blendModes.NORMAL;
 		 */
-		this.blendMode = VonPixi.blendModes.NORMAL;
+		this.blendMode = GS.blendModes.NORMAL;
 		
 		this.renderable = true;
 	};
@@ -203,7 +203,7 @@ define(function(require) {
 	Sprite.prototype.draw = function(ctx) {
 		/*if (this.blendMode !== renderSession.currentBlendMode) {
 			renderSession.currentBlendMode = this.blendMode;
-			ctx.globalCompositeOperation = VonPixi.blendModes[renderSession.currentBlendMode];
+			ctx.globalCompositeOperation = GS.blendModes[renderSession.currentBlendMode];
 		}*/
 	
 		ctx.globalAlpha = this.worldAlpha;

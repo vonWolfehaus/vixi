@@ -3,7 +3,7 @@
  */
 define(function(require) {
 	
-	var VonPixi = require('VonPixi');
+	var GS = require('GS');
 	var Container = require('Container');
 	var Matrix = require('Matrix2');
 
@@ -15,7 +15,7 @@ define(function(require) {
 	 * @constructor
 	 * 
 	 * Creating a stage is a mandatory process when you use Pixi, which is as simple as this : 
-	 * var stage = new Stage(0xFFFFFF);
+	 * var stage = new Stage();
 	 * where the parameter given is the background colour of the stage, in hex
 	 * you will use this stage instance to add your sprites to it and therefore to the renderer
 	 * Here is how to add a sprite to the stage : 
@@ -33,24 +33,24 @@ define(function(require) {
 		 */
 		this.clearBeforeRender = true;
 		
-		// MY EYES
-		VonPixi.blendModesCanvas[VonPixi.blendModes.NORMAL]   = 'source-over';
-		VonPixi.blendModesCanvas[VonPixi.blendModes.ADD]      = 'lighter'; //IS THIS OK???
-		VonPixi.blendModesCanvas[VonPixi.blendModes.MULTIPLY] = 'multiply';
-		VonPixi.blendModesCanvas[VonPixi.blendModes.SCREEN]   = 'screen';
-		VonPixi.blendModesCanvas[VonPixi.blendModes.OVERLAY]  = 'overlay';
-		VonPixi.blendModesCanvas[VonPixi.blendModes.DARKEN]   = 'darken';
-		VonPixi.blendModesCanvas[VonPixi.blendModes.LIGHTEN]  = 'lighten';
-		VonPixi.blendModesCanvas[VonPixi.blendModes.COLOR_DODGE] = 'color-dodge';
-		VonPixi.blendModesCanvas[VonPixi.blendModes.COLOR_BURN] = 'color-burn';
-		VonPixi.blendModesCanvas[VonPixi.blendModes.HARD_LIGHT] = 'hard-light';
-		VonPixi.blendModesCanvas[VonPixi.blendModes.SOFT_LIGHT] = 'soft-light';
-		VonPixi.blendModesCanvas[VonPixi.blendModes.DIFFERENCE] = 'difference';
-		VonPixi.blendModesCanvas[VonPixi.blendModes.EXCLUSION] = 'exclusion';
-		VonPixi.blendModesCanvas[VonPixi.blendModes.HUE]       = 'hue';
-		VonPixi.blendModesCanvas[VonPixi.blendModes.SATURATION] = 'saturation';
-		VonPixi.blendModesCanvas[VonPixi.blendModes.COLOR]      = 'color';
-		VonPixi.blendModesCanvas[VonPixi.blendModes.LUMINOSITY] = 'luminosity';
+		// MY EYES, THEY BLEED
+		GS.blendModesCanvas[GS.blendModes.NORMAL]   = 'source-over';
+		GS.blendModesCanvas[GS.blendModes.ADD]      = 'lighter'; //IS THIS OK???
+		GS.blendModesCanvas[GS.blendModes.MULTIPLY] = 'multiply';
+		GS.blendModesCanvas[GS.blendModes.SCREEN]   = 'screen';
+		GS.blendModesCanvas[GS.blendModes.OVERLAY]  = 'overlay';
+		GS.blendModesCanvas[GS.blendModes.DARKEN]   = 'darken';
+		GS.blendModesCanvas[GS.blendModes.LIGHTEN]  = 'lighten';
+		GS.blendModesCanvas[GS.blendModes.COLOR_DODGE] = 'color-dodge';
+		GS.blendModesCanvas[GS.blendModes.COLOR_BURN] = 'color-burn';
+		GS.blendModesCanvas[GS.blendModes.HARD_LIGHT] = 'hard-light';
+		GS.blendModesCanvas[GS.blendModes.SOFT_LIGHT] = 'soft-light';
+		GS.blendModesCanvas[GS.blendModes.DIFFERENCE] = 'difference';
+		GS.blendModesCanvas[GS.blendModes.EXCLUSION] = 'exclusion';
+		GS.blendModesCanvas[GS.blendModes.HUE]       = 'hue';
+		GS.blendModesCanvas[GS.blendModes.SATURATION] = 'saturation';
+		GS.blendModesCanvas[GS.blendModes.COLOR]      = 'color';
+		GS.blendModesCanvas[GS.blendModes.LUMINOSITY] = 'luminosity';
 		
 		/**
 		 * The width of the canvas view
@@ -100,6 +100,9 @@ define(function(require) {
 		
 		// the stage is its own stage
 		this.stage = this;
+		
+		// private
+		this._scratch = null;
 	};
 
 	// constructor
@@ -107,13 +110,13 @@ define(function(require) {
 	Stage.prototype.constructor = Stage;
 	
 	Stage.prototype.draw = function() {
-		var node = this.children.first;
+		this._scratch = this.children.first;
 		
 		this.worldAlpha = 1;
 		
-		while (node) {
-			node.obj.updateTransform();
-			node = node.next;
+		while (this._scratch) {
+			this._scratch.obj.updateTransform();
+			this._scratch = this._scratch.next;
 		}
 		
 		this.context.setTransform(1,0,0,1,0,0);
@@ -123,12 +126,12 @@ define(function(require) {
 			this.context.clearRect(0, 0, this.width, this.height);
 		}
 		
-		node = this.children.first;
-		while (node) {
-			if (node.obj.visible && node.obj.alpha > 0) {
-				node.obj.draw(this.context);
+		this._scratch = this.children.first;
+		while (this._scratch) {
+			if (this._scratch.obj.visible && this._scratch.obj.alpha > 0) {
+				this._scratch.obj.draw(this.context);
 			}
-			node = node.next;
+			this._scratch = this._scratch.next;
 		}
 	};
 	

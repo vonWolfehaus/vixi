@@ -4,7 +4,7 @@
 define(function(require) {
 	
 	// imports
-	var VonPixi = require('VonPixi');
+	var GS = require('GS');
 	var DisplayObject = require('DisplayObject');
 	var LinkedList = require('LinkedList');
 	
@@ -27,6 +27,9 @@ define(function(require) {
 		 * @readOnly
 		 */
 		this.children = new LinkedList();
+		
+		// private
+		this._scratch = null;
 	};
 
 	// constructor
@@ -105,17 +108,16 @@ define(function(require) {
 	 * @private
 	 */
 	Container.prototype.updateTransform = function() {
-		var node;
 		if (!this.visible) {
 			return;
 		}
 
 		DisplayObject.prototype.updateTransform.call(this);
 		
-		node = this.children.first;
-		while (node) {
-			node.obj.updateTransform();
-			node = node.next;
+		this._scratch = this.children.first;
+		while (this._scratch) {
+			this._scratch.obj.updateTransform();
+			this._scratch = this._scratch.next;
 		}
 	};
 
@@ -128,7 +130,7 @@ define(function(require) {
 	Container.prototype.getBounds = function(matrix) {
 		var node;
 		if (this.children.length === 0) {
-			return VonPixi.EmptyRectangle;
+			return GS.EmptyRectangle;
 		}
 
 		// TODO the bounds have already been calculated this render session so return what we have
@@ -175,7 +177,7 @@ define(function(require) {
 		}
 
 		if (!childVisible) {
-			return VonPixi.EmptyRectangle;
+			return GS.EmptyRectangle;
 		}
 
 		var bounds = this._bounds;
@@ -239,9 +241,9 @@ define(function(require) {
 			node = node.next;
 		}
 
-		if (this._interactive) {
+		/*if (this._interactive) {
 			this.stage.dirty = true;
-		}
+		}*/
 		
 		this.stage = null;
 	};
@@ -254,17 +256,12 @@ define(function(require) {
 	* @private
 	*/
 	Container.prototype.draw = function(ctx) {
-		var node;
-		if (this.visible === false || this.alpha === 0) {
-			return;
-		}
-
-		node = this.children.first;
-		while (node) {
-			if (node.obj.visible && node.obj.alpha > 0) {
-				node.obj.draw(ctx);
+		this._scratch = this.children.first;
+		while (this._scratch) {
+			if (this._scratch.obj.visible && this._scratch.obj.alpha > 0) {
+				this._scratch.obj.draw(ctx);
 			}
-			node = node.next;
+			this._scratch = this._scratch.next;
 		}
 	};
 

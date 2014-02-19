@@ -4,7 +4,7 @@
 define(function (require) {
 
 	// imports
-	var VonPixi = require('VonPixi');
+	var GS = require('GS');
 	var Point = require('Point');
 	var Rectangle = require('Rectangle');
 	var Matrix = require('Matrix2');
@@ -215,7 +215,7 @@ define(function (require) {
 	 */
 	DisplayObject.prototype.getBounds = function(matrix) {
 		matrix = matrix;//just to get passed js hinting (and preserve inheritance)
-		return VonPixi.EmptyRectangle;
+		return GS.EmptyRectangle;
 	};
 
 	/**

@@ -30,6 +30,9 @@ gulp.task('dev', function() {
 				return require('amdclean').clean({
 					code: contents,
 					removeAllRequires: true,
+					prefixTransform: function(moduleName) {
+						return moduleName.substring(moduleName.lastIndexOf('_') + 1, moduleName.length);
+					},
 					globalObject: true,
 					globalObjectName: 'von2d'
 				});

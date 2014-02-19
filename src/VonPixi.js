@@ -1,7 +1,7 @@
 define(function(require) {
 	var Rectangle = require('Rectangle');
 	
-	var VonPixi = {
+	var GS = {
 		blendModes: {
 			NORMAL:0,
 			ADD:1,
@@ -33,6 +33,6 @@ define(function(require) {
 		EmptyRectangle: new Rectangle()
 	};
 	
-	return VonPixi;
+	return GS;
 	
 });
