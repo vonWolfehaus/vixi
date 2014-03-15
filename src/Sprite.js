@@ -2,6 +2,7 @@
 	Mat made a fine Sprite... except for all the local variable created in functions, that shit will thrash the garbage reeaaaally hard. Anyway, I stripped out masking, filters, and other things to make it lighter and faster. I recommend just going with the PIXI rendering engine and not this version unless you have your own loader and compatibility isn't an issue. Also removed WebGL support, because it doesn't exist where I go.
 	
 	@author Mat Groves http://matgroves.com/ @Doormat23
+	@author Corey Birnbaum http://coldconstructs.com/ @vonWolfehaus
 */
 define(function(require) {
 

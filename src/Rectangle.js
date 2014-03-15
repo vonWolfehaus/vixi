@@ -1,3 +1,6 @@
+/*
+	@author Corey Birnbaum http://coldconstructs.com/ @vonWolfehaus
+*/
 define(function (require) {
 
 	var Rectangle = function(x, y, width, height) {

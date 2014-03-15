@@ -1,5 +1,6 @@
 /**
  * @author Mat Groves http://matgroves.com/ @Doormat23
+ * @author Corey Birnbaum http://coldconstructs.com/ @vonWolfehaus
  */
 define(function (require) {
 

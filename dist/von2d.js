@@ -35,7 +35,7 @@ von2d['Rectangle'] = function (require) {
     return Rectangle;
 }({});
 von2d['GS'] = function (require, Rectangle) {
-    var Rectangle = Rectangle;
+    var Rectangle = von2d['Rectangle'];
     var GS = {
             blendModes: {
                 NORMAL: 0,
@@ -190,12 +190,13 @@ von2d['Matrix2'] = function (require) {
 }({});
 /**
  * @author Mat Groves http://matgroves.com/ @Doormat23
+ * @author Corey Birnbaum http://coldconstructs.com/ @vonWolfehaus
  */
 von2d['DisplayObject'] = function (require, GS, Point, Rectangle, Matrix2) {
-    var GS = GS;
-    var Point = Point;
-    var Rectangle = Rectangle;
-    var Matrix = Matrix2;
+    var GS = von2d['GS'];
+    var Point = von2d['Point'];
+    var Rectangle = von2d['Rectangle'];
+    var Matrix = von2d['Matrix2'];
     var DisplayObject = function () {
         this.uniqueId = Math.random().toString(36).slice(2) + Date.now();
         this.position = new Point();
@@ -294,10 +295,10 @@ von2d['DisplayObject'] = function (require, GS, Point, Rectangle, Matrix2) {
 	@author Mat Groves http://matgroves.com/ @Doormat23
 */
 von2d['Sprite'] = function (require, GS, DisplayObject, Point, Rectangle) {
-    var GS = GS;
-    var DisplayObject = DisplayObject;
-    var Point = Point;
-    var Rectangle = Rectangle;
+    var GS = von2d['GS'];
+    var DisplayObject = von2d['DisplayObject'];
+    var Point = von2d['Point'];
+    var Rectangle = von2d['Rectangle'];
     var Sprite = function (image, frame) {
         DisplayObject.call(this);
         this.anchor = new Point(0.5, 0.5);
@@ -589,9 +590,9 @@ von2d['LinkedList'] = function () {
  * @author Mat Groves http://matgroves.com/ @Doormat23
  */
 von2d['Container'] = function (require, GS, DisplayObject, LinkedList) {
-    var GS = GS;
-    var DisplayObject = DisplayObject;
-    var LinkedList = LinkedList;
+    var GS = von2d['GS'];
+    var DisplayObject = von2d['DisplayObject'];
+    var LinkedList = von2d['LinkedList'];
     Container = function () {
         DisplayObject.call(this);
         this.children = new LinkedList();
@@ -734,9 +735,9 @@ von2d['Container'] = function (require, GS, DisplayObject, LinkedList) {
  * @author Mat Groves http://matgroves.com/ @Doormat23
  */
 von2d['Stage'] = function (require, GS, Container, Matrix2) {
-    var GS = GS;
-    var Container = Container;
-    var Matrix = Matrix2;
+    var GS = von2d['GS'];
+    var Container = von2d['Container'];
+    var Matrix = von2d['Matrix2'];
     var Stage = function (width, height, view) {
         Container.call(this);
         this.clearBeforeRender = true;
