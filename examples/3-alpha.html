@@ -13,13 +13,14 @@
 <body>
 	
 	<img id="test-image" src="bunny.png" style="display:none;">
-	
-<script src="../dist/von2d.min.js"></script>
+
+<script src="../lib/raf-shim.js"></script>
+<script src="../dist/vixi.js"></script>
 <script>
 window.addEventListener('load', function(evt) {
 	
-	// create an new instance of a von2d stage
-	var stage = new von2d.Stage(400, 400);
+	// create an new instance of a vixi stage
+	var stage = new vixi.Stage(400, 400);
 	
 	var numSprites = 12;
 	var sprites = [];
@@ -37,7 +38,7 @@ window.addEventListener('load', function(evt) {
 	
 	// add a bunch of sprites into rows and add them to the stage (where we make them dance for our amusement)
 	for (i = 0; i < numSprites; i++) {
-		spr = new von2d.Sprite(img);
+		spr = new vixi.Sprite(img);
 		spr.position.x = (rowX * spacing) + offX;
 		spr.position.y = (rowY * spacing) + offY;
 		
@@ -74,7 +75,7 @@ window.addEventListener('load', function(evt) {
 		// render the stage
 		stage.draw();
 		
-		window.webkitRequestAnimationFrame(animate);
+		requestAnimationFrame(animate);
 	}
 	
 	// kick off our animation loop

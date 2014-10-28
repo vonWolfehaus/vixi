@@ -1,11 +1,10 @@
 /**
  * @author Mat Groves http://matgroves.com/ @Doormat23
- * @author Corey Birnbaum http://coldconstructs.com/ @vonWolfehaus
  */
 define(function(require) {
 	
 	// imports
-	var GS = require('GS');
+	var Global = require('Global');
 	var DisplayObject = require('DisplayObject');
 	var LinkedList = require('LinkedList');
 	
@@ -131,7 +130,7 @@ define(function(require) {
 	Container.prototype.getBounds = function(matrix) {
 		var node;
 		if (this.children.length === 0) {
-			return GS.EmptyRectangle;
+			return Global.EmptyRectangle;
 		}
 
 		// TODO the bounds have already been calculated this render session so return what we have
@@ -178,7 +177,7 @@ define(function(require) {
 		}
 
 		if (!childVisible) {
-			return GS.EmptyRectangle;
+			return Global.EmptyRectangle;
 		}
 
 		var bounds = this._bounds;

@@ -13,22 +13,20 @@
 <body>
 	
 	<img id="test-image" src="beetle.png" style="display:none;">
-	
-<script src="../lib/require.js"></script>
+
+<script src="../lib/raf-shim.js"></script>
+<script src="../dist/vixi.js"></script>
 <script>
-require.config({
-	baseUrl: '../src'
-});
-require(['Stage', 'Sprite', 'Container'], function(Stage, Sprite, Container) {
+window.addEventListener('load', function(evt) {
 		
-	// create an new instance of a von-pixi stage
-	var stage = new Stage(600, 500);
+	// create an new instance of a vixi stage
+	var stage = new vixi.Stage(600, 500);
 
 	// add the stage's canvas element to the DOM
 	document.body.appendChild(stage.view);
 
 	// create a container to use to group a bunch of sprites together
-	var container = new Container();
+	var container = new vixi.Container();
 	// move it to the center
 	container.position.x = stage.width / 2;
 	container.position.y = stage.height / 2;
@@ -43,7 +41,7 @@ require(['Stage', 'Sprite', 'Container'], function(Stage, Sprite, Container) {
 	
 	// add a bunch of sprites into rows and add them to our new container
 	for (i = 0; i < 12; i++) {
-		spr = new Sprite(img);
+		spr = new vixi.Sprite(img);
 		spr.position.x = (rowX * spacing) + offX;
 		spr.position.y = (rowY * spacing) + offY;
 		
@@ -66,7 +64,7 @@ require(['Stage', 'Sprite', 'Container'], function(Stage, Sprite, Container) {
 		// render the stage
 		stage.draw();
 		
-		window.webkitRequestAnimationFrame(animate);
+		requestAnimationFrame(animate);
 	}
 	
 	// kick off our animation loop

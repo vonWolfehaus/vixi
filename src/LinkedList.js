@@ -1,6 +1,5 @@
 /**
  * @source https://github.com/martinwells/gamecore.js
- * Hoisted to the global namespace for convenience.
  */
 define(function(){
 /**
@@ -12,7 +11,7 @@ var LinkedListNode = function() {
 	this.prev = null; // link to previous object in the list
 	this.free = true;
 };
-window.LinkedListNode = LinkedListNode;
+
 /**
  * @description
  * A high-speed doubly linked list of objects. Note that for speed reasons (using a dictionary lookup of
@@ -315,6 +314,5 @@ var LinkedList = function() {
 	};
 };
 
-window.LinkedList = LinkedList;
 return LinkedList;
 });

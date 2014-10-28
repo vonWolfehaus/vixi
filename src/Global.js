@@ -1,7 +1,7 @@
 define(function(require) {
 	var Rectangle = require('Rectangle');
 	
-	var GS = {
+	var Global = {
 		blendModes: {
 			NORMAL:0,
 			ADD:1,
@@ -22,7 +22,27 @@ define(function(require) {
 			LUMINOSITY:16
 		},
 		
-		blendModesCanvas: [],
+		blendModesCanvas: [
+			'source-over',
+			'lighter',
+			'multiply',
+			'screen',
+			'overlay',
+			'darken',
+			'lighten',
+			'color-dodge',
+			'color-burn',
+			'hard-light',
+			'soft-light',
+			'difference',
+			'exclusion',
+			'hue',
+			'saturation',
+			'color',
+			'luminosity'
+		],
+		
+		currentBlendMode: 0,
 		
 		scaleModes: {
 			DEFAULT:0,
@@ -33,6 +53,6 @@ define(function(require) {
 		EmptyRectangle: new Rectangle()
 	};
 	
-	return GS;
+	return Global;
 	
 });

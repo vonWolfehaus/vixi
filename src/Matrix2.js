@@ -1,5 +1,5 @@
 /*
-	Matrix2d. BORROWED from easeljs, tho I ripped a ton of stuff out since none of it is used, but the rest seem like they might come in handy later on. Maybe.
+	@source https://github.com/CreateJS/EaselJS/blob/master/src/easeljs/geom/Matrix2D.js
 */
 define(function(require) {
 	/**

@@ -1,13 +1,12 @@
 /*
-	Mat made a fine Sprite... except for all the local variable created in functions, that shit will thrash the garbage reeaaaally hard. Anyway, I stripped out masking, filters, and other things to make it lighter and faster. I recommend just going with the PIXI rendering engine and not this version unless you have your own loader and compatibility isn't an issue. Also removed WebGL support, because it doesn't exist where I go.
+	Go with PIXI if you want webgl support, among other things that have been tripped out here.
 	
 	@author Mat Groves http://matgroves.com/ @Doormat23
-	@author Corey Birnbaum http://coldconstructs.com/ @vonWolfehaus
 */
 define(function(require) {
 
 	// imports
-	var GS = require('GS');
+	var Global = require('Global');
 	var DisplayObject = require('DisplayObject');
 	var Point = require('Point');
 	var Rectangle = require('Rectangle');
@@ -74,7 +73,7 @@ define(function(require) {
 		 * @type Number
 		 * @default blendModes.NORMAL;
 		 */
-		this.blendMode = GS.blendModes.NORMAL;
+		this.blendMode = Global.blendModes.NORMAL;
 		
 		this.renderable = true;
 	};
@@ -198,14 +197,13 @@ define(function(require) {
 	* Renders the object using the Canvas renderer
 	*
 	* @method _renderCanvas
-	* @param renderSession {RenderSession}
 	* @private
 	*/
 	Sprite.prototype.draw = function(ctx) {
-		/*if (this.blendMode !== renderSession.currentBlendMode) {
-			renderSession.currentBlendMode = this.blendMode;
-			ctx.globalCompositeOperation = GS.blendModes[renderSession.currentBlendMode];
-		}*/
+		if (this.blendMode !== Global.currentBlendMode) {
+			Global.currentBlendMode = this.blendMode;
+			ctx.globalCompositeOperation = Global.blendModesCanvas[Global.currentBlendMode];
+		}
 	
 		ctx.globalAlpha = this.worldAlpha;
 

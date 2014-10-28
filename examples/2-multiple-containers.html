@@ -13,29 +13,27 @@
 <body>
 	
 	<img id="test-image" src="bunny.png" style="display:none;">
-	
-<script src="../lib/require.js"></script>
+
+<script src="../lib/raf-shim.js"></script>
+<script src="../dist/vixi.js"></script>
 <script>
-require.config({
-	baseUrl: '../src'
-});
-require(['Stage', 'Sprite', 'Container'], function(Stage, Sprite, Container) {
+window.addEventListener('load', function(evt) {
 		
-	// create an new instance of a von-pixi stage
-	var stage = new Stage(500, 400);
+	// create an new instance of a vixi stage
+	var stage = new vixi.Stage(500, 400);
 
 	// add the stage's canvas element to the DOM
 	document.body.appendChild(stage.view);
 
 	// create a container to use to group a bunch of sprites together
 	// all positions are RELATIVE to their PARENT! keep that in mind!
-	var containerOne = new Container();
+	var containerOne = new vixi.Container();
 	containerOne.position.x = stage.width / 2;
 	containerOne.position.y = stage.height / 2;
 	containerOne.pivot.x = stage.width / 2;
 	containerOne.pivot.y = stage.height / 2;
 	
-	var containerTwo = new Container();
+	var containerTwo = new vixi.Container();
 	containerTwo.position.x = stage.width / 2;
 	containerTwo.position.y = stage.height / 2;
 	containerTwo.pivot.x = stage.width / 2;
@@ -50,7 +48,7 @@ require(['Stage', 'Sprite', 'Container'], function(Stage, Sprite, Container) {
 	
 	// inner circle
 	for (i = 0; i < total; i++) {
-		o = new Sprite(img);
+		o = new vixi.Sprite(img);
 		o.position.reset(Math.cos(a) * 50 + wx, Math.sin(a) * 50 + wy);
 		containerOne.addChild(o);
 		a += ao;
@@ -61,14 +59,14 @@ require(['Stage', 'Sprite', 'Container'], function(Stage, Sprite, Container) {
 	a = 0;
 	ao = tau / total;
 	for (i = 0; i < total; i++) {
-		o = new Sprite(img);
+		o = new vixi.Sprite(img);
 		o.position.reset(Math.cos(a) * 100 + wx, Math.sin(a) * 100 + wy);
 		containerTwo.addChild(o);
 		a += ao;
 	}
 	
 	// ok but let's also make a THIRD container that contains the other two, and swing it around!
-	var containerThree = new Container();
+	var containerThree = new vixi.Container();
 	
 	containerThree.addChild(containerOne);
 	containerThree.addChild(containerTwo);
@@ -87,7 +85,7 @@ require(['Stage', 'Sprite', 'Container'], function(Stage, Sprite, Container) {
 		// render the stage
 		stage.draw();
 		
-		window.webkitRequestAnimationFrame(animate);
+		requestAnimationFrame(animate);
 	}
 	
 	// kick off our animation loop

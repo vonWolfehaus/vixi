@@ -1,14 +1,15 @@
 /**
  * @author Mat Groves http://matgroves.com/ @Doormat23
- * @author Corey Birnbaum http://coldconstructs.com/ @vonWolfehaus
  */
 define(function (require) {
 
 	// imports
-	var GS = require('GS');
+	var Global = require('Global');
 	var Point = require('Point');
 	var Rectangle = require('Rectangle');
 	var Matrix = require('Matrix2');
+	
+	var TAU = Math.PI * 2;
 
 	/**
 	 * The base class for all objects that are rendered on the screen.
@@ -66,9 +67,7 @@ define(function (require) {
 		 * @type Boolean
 		 */
 		this.visible = true;
-
 		
-
 		/**
 		 * Can this object be rendered
 		 *
@@ -178,32 +177,48 @@ define(function (require) {
 	 * @private
 	 */
 	DisplayObject.prototype.updateTransform = function() {
-		if (this.rotation !== this.rotationCache) {
-			this.rotationCache = this.rotation;
-			this._sr = Math.sin(this.rotation);
-			this._cr = Math.cos(this.rotation);
-		}
-
 		this._parentTransform = this.parent.worldTransform;
-		
-		this._a00 = this._cr * this.scale.x;
-		this._a01 = -this._sr * this.scale.y;
-		this._a10 = this._sr * this.scale.x;
-		this._a11 = this._cr * this.scale.y;
-		this._a02 = this.position.x - this._a00 * this.pivot.x - this.pivot.y * this._a01;
-		this._a12 = this.position.y - this._a11 * this.pivot.y - this.pivot.x * this._a10;
 		this._b00 = this._parentTransform.a;
 		this._b01 = this._parentTransform.b;
 		this._b10 = this._parentTransform.c;
 		this._b11 = this._parentTransform.d;
+		
+		// if (this.rotation % TAU) {
+			if (this.rotation !== this.rotationCache) {
+				this.rotationCache = this.rotation;
+				this._sr = Math.sin(this.rotation);
+				this._cr = Math.cos(this.rotation);
+			}
+			
+			this._a00 = this._cr * this.scale.x;
+			this._a01 = -this._sr * this.scale.y;
+			this._a10 = this._sr * this.scale.x;
+			this._a11 = this._cr * this.scale.y;
+			this._a02 = this.position.x - this._a00 * this.pivot.x - this.pivot.y * this._a01;
+			this._a12 = this.position.y - this._a11 * this.pivot.y - this.pivot.x * this._a10;
+			
+			this.worldTransform.a = this._b00 * this._a00 + this._b01 * this._a10;
+			this.worldTransform.b = this._b00 * this._a01 + this._b01 * this._a11;
+			this.worldTransform.tx = this._b00 * this._a02 + this._b01 * this._a12 + this._parentTransform.tx;
 
-		this.worldTransform.a = this._b00 * this._a00 + this._b01 * this._a10;
-		this.worldTransform.b = this._b00 * this._a01 + this._b01 * this._a11;
-		this.worldTransform.tx = this._b00 * this._a02 + this._b01 * this._a12 + this._parentTransform.tx;
+			this.worldTransform.c = this._b10 * this._a00 + this._b11 * this._a10;
+			this.worldTransform.d = this._b10 * this._a01 + this._b11 * this._a11;
+			this.worldTransform.ty = this._b10 * this._a02 + this._b11 * this._a12 + this._parentTransform.ty;
+		/*}
+		else {
+			// fast version as we know there is no rotation..
+			this._a00 = this.scale.x;
+			this._a11 = this.scale.y;
+			this._a02 = this.position.x - this.pivot.x * this._a00;
+			this._a12 = this.position.y - this.pivot.y * this._a11;
 
-		this.worldTransform.c = this._b10 * this._a00 + this._b11 * this._a10;
-		this.worldTransform.d = this._b10 * this._a01 + this._b11 * this._a11;
-		this.worldTransform.ty = this._b10 * this._a02 + this._b11 * this._a12 + this._parentTransform.ty;
+			this.worldTransform.a  = this._b00 * this._a00;
+			this.worldTransform.b  = this._b01 * this._a11;
+			this.worldTransform.c  = this._b10 * this._a00;
+			this.worldTransform.d  = this._b11 * this._a11;
+			this.worldTransform.tx = this._a02 * this._b00 + this._a12 * this._b10 + this._parentTransform.tx;
+			this.worldTransform.ty = this._a02 * this._b01 + this._a12 * this._b11 + this._parentTransform.ty;
+		}*/
 
 		this.worldAlpha = this.alpha * this.parent.worldAlpha;
 	};
@@ -216,7 +231,7 @@ define(function (require) {
 	 */
 	DisplayObject.prototype.getBounds = function(matrix) {
 		matrix = matrix;//just to get passed js hinting (and preserve inheritance)
-		return GS.EmptyRectangle;
+		return Global.EmptyRectangle;
 	};
 
 	/**

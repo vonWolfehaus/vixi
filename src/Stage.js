@@ -1,10 +1,9 @@
 /**
  * @author Mat Groves http://matgroves.com/ @Doormat23
- * @author Corey Birnbaum http://coldconstructs.com/ @vonWolfehaus
  */
 define(function(require) {
 	
-	var GS = require('GS');
+	var Global = require('Global');
 	var Container = require('Container');
 	var Matrix = require('Matrix2');
 
@@ -33,25 +32,6 @@ define(function(require) {
 		 * @default
 		 */
 		this.clearBeforeRender = true;
-		
-		// MY EYES, THEY BLEED
-		GS.blendModesCanvas[GS.blendModes.NORMAL]   = 'source-over';
-		GS.blendModesCanvas[GS.blendModes.ADD]      = 'lighter'; //IS THIS OK???
-		GS.blendModesCanvas[GS.blendModes.MULTIPLY] = 'multiply';
-		GS.blendModesCanvas[GS.blendModes.SCREEN]   = 'screen';
-		GS.blendModesCanvas[GS.blendModes.OVERLAY]  = 'overlay';
-		GS.blendModesCanvas[GS.blendModes.DARKEN]   = 'darken';
-		GS.blendModesCanvas[GS.blendModes.LIGHTEN]  = 'lighten';
-		GS.blendModesCanvas[GS.blendModes.COLOR_DODGE] = 'color-dodge';
-		GS.blendModesCanvas[GS.blendModes.COLOR_BURN] = 'color-burn';
-		GS.blendModesCanvas[GS.blendModes.HARD_LIGHT] = 'hard-light';
-		GS.blendModesCanvas[GS.blendModes.SOFT_LIGHT] = 'soft-light';
-		GS.blendModesCanvas[GS.blendModes.DIFFERENCE] = 'difference';
-		GS.blendModesCanvas[GS.blendModes.EXCLUSION] = 'exclusion';
-		GS.blendModesCanvas[GS.blendModes.HUE]       = 'hue';
-		GS.blendModesCanvas[GS.blendModes.SATURATION] = 'saturation';
-		GS.blendModesCanvas[GS.blendModes.COLOR]      = 'color';
-		GS.blendModesCanvas[GS.blendModes.LUMINOSITY] = 'luminosity';
 		
 		/**
 		 * The width of the canvas view
